@@ -1,6 +1,7 @@
 # Typst Hagaki
 
-Typst package for printing address labels on Hagaki paper.
+Typst package for printing address labels on Japanese Hagaki paper.
+
 年賀状などのはがきの宛名印刷用のTypstパッケージです。
 
 ## Usage
