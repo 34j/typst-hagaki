@@ -1,0 +1,5 @@
+repos:
+  - repo: https://github.com/jeffa5/typstfmt
+    rev: 'ade0a35'  # Use the sha / tag you want to point at
+    hooks:
+      - id: typstfmt
