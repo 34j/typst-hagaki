@@ -1,9 +1,9 @@
-#let rotateChar = "[-ー\u{FF5E}\u{301C}\p{Open_Punctuation}\p{Close_Punctuation}]"
 #let vw(
   body,
   kerning: 0.3em,
   leading: 0.5em,
   spacing: 1em,
+  rotateChar: "[-ー\u{FF5E}\u{301C}\p{Open_Punctuation}\p{Close_Punctuation}]",
 ) = {
   set align(right)
   stack(
@@ -39,23 +39,24 @@
   )
 }
 
-#let formatAddress(address) = {
+#let format-address(address) = {
   address.replace("-", "ー").replace("1", "一").replace("2", "二").replace("3", "三").replace("4", "四").replace("5", "五").replace("6", "六").replace("7", "七").replace("8", "八").replace("9", "九").replace("0", "〇").replace(" ", "\n")
 }
 
-/// Generate a postcard with the given information.
+/// Generate an address label for Japanese postcards
+/// with the given information.
 ///
-/// - lastName (string): The last name of the recipient, e.g., "岸田". 
-/// - firstName (string): The first name of the recipient, e.g., "文雄".
-/// - postCode (string): The post code of the recipient, e.g., "1008981".
+/// - last-name (string): The last name of the recipient, e.g., "岸田". 
+/// - first-name (string): The first name of the recipient, e.g., "文雄".
+/// - postal-code (string): The post code of the recipient, e.g., "1008981".
 /// - address (string): The address of the recipient, e.g., "東京都千代田区永田町2-2-1 衆議院第1議員会館1222号室". Arabic numerals are automatically converted to kanji numerals.
-/// - myLastName (string): The last name of the sender, e.g., "岸田".
-/// - myFirstName (string): The first name of the sender, e.g., "文雄".
-/// - myPostCode (string): The post code of the sender, e.g., "1008981".
-/// - myAddress (string): The address of the sender, e.g., "東京都千代田区永田町2-2-1 衆議院第1議員会館1222号室". Arabic numerals are automatically converted to kanji numerals.
-/// - debug (boolean): Whether to show the debug information, e.g., true.
+/// - my-last-name (string): The last name of the sender, e.g., "岸田".
+/// - my-first-name (string): The first name of the sender, e.g., "文雄".
+/// - my-postal-code (string): The post code of the sender, e.g., "1008981".
+/// - my-address (string): The address of the sender, e.g., "東京都千代田区永田町2-2-1 衆議院第1議員会館1222号室". Arabic numerals are automatically converted to kanji numerals.
+/// - debug (boolean): Whether to show the debug image, e.g., true.
 /// -> none
-#let hagaki(lastName, firstName, postCode, address, myLastName, myFirstName, myPostCode, myAddress, debug: false) = {
+#let hagaki(last-name, first-name, postal-code, address, my-last-name, my-first-name, my-postal-code, my-address, debug: false) = {
   let background = none
   if debug {
     background = image("hagaki.png")
@@ -64,7 +65,7 @@
   // postCode
 
   set text(size: 16pt)
-  for (i, c) in postCode.clusters(
+  for (i, c) in postal-code.clusters(
   ).filter(x => regex("[0-9]") in x).enumerate() {
     place(
       top + left,
@@ -81,7 +82,7 @@
   // myPostCode
 
   set text(size: 10pt)
-  for (i, c) in myPostCode.clusters(
+  for (i, c) in my-postal-code.clusters(
   ).filter(x => regex("[0-9]") in x).enumerate() {
     place(
       top + left,
@@ -101,7 +102,7 @@
   place(
     center + bottom,
     block(
-      vw(lastName + " " + firstName + " 様"),
+      vw(last-name + " " + first-name + " 様"),
     ),
     dy: -33mm,
   )
@@ -112,7 +113,7 @@
   place(
     top + right,
     block(
-      vw(formatAddress(address)),
+      vw(format-address(address)),
       width: 35mm,
       height: 90mm,
     ),
@@ -127,7 +128,7 @@
     block(
       align(center + horizon)[
         #set text(size: 10pt)
-        #vw(formatAddress(myAddress))
+        #vw(format-address(my-address))
       ],
       width: 15mm,
       height: 60mm,
@@ -143,7 +144,7 @@
     block(
       align(center + bottom)[
         #set text(size: 16pt)
-        #vw(myLastName + " " + myFirstName)
+        #vw(my-last-name + " " + my-first-name)
       ],
       width: 10mm,
       height: 60mm,
@@ -154,7 +155,8 @@
   pagebreak(weak: true)
 }
 
-/// Generate a batch of postcards from the given CSV file.
+/// Generate a batch of address labels for Japanese postcards 
+/// with the given information from the CSV file.
 ///
 /// - path (string): The path to the CSV file, e.g., "jyusyoroku.csv".
 /// - lastNameColumn (integer): The column number for the last name, e.g., 0.
@@ -162,31 +164,31 @@
 /// - postCodeColumn (integer): The column number for the post code, e.g., 2.
 /// - addressColumn (integer): The column number for the address, e.g., 3.
 /// - myLine (number): The line number for the sender, e.g., 1.
-/// - debug (boolean): Whether to show the debug information, e.g., true.
+/// - debug (boolean): Whether to show the debug image, e.g., true.
 /// -> none
-#let hagakiBatch(
+#let hagaki-from-csv(
   path,
-  lastNameColumn,
-  firstNameColumn,
-  postCodeColumn,
-  addressColumn,
-  myLine: 1,
+  last-name-col,
+  first-name-col,
+  postal-code-col,
+  address-col,
+  my-line: 1,
   debug: false,
 ) = {
   let lines = csv(path)
   for (i, line) in lines.slice(1).enumerate() {
-    if i + 1 == myLine {
+    if i + 1 == my-line {
       continue
     }
     hagaki(
-      line.at(lastNameColumn),
-      line.at(firstNameColumn),
-      line.at(postCodeColumn),
-      line.at(addressColumn),
-      lines.at(myLine).at(lastNameColumn),
-      lines.at(myLine).at(firstNameColumn),
-      lines.at(myLine).at(postCodeColumn),
-      lines.at(myLine).at(addressColumn),
+      line.at(last-name-col),
+      line.at(first-name-col),
+      line.at(postal-code-col),
+      line.at(address-col),
+      lines.at(my-line).at(last-name-col),
+      lines.at(my-line).at(first-name-col),
+      lines.at(my-line).at(postal-code-col),
+      lines.at(my-line).at(address-col),
       debug: debug,
     )
   }
