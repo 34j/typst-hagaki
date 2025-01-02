@@ -40,15 +40,27 @@
 }
 
 #let formatAddress(address) = {
-  address.replace("-", "ー").replace("1", "一").replace("2", "二").replace("3", "三").replace("4", "四").replace("5", "五").replace("6", "六").replace("7", "七").replace("8", "八").replace("9", "九").replace("0", "〇")
+  address.replace("-", "ー").replace("1", "一").replace("2", "二").replace("3", "三").replace("4", "四").replace("5", "五").replace("6", "六").replace("7", "七").replace("8", "八").replace("9", "九").replace("0", "〇").replace(" ", "\n")
 }
 
+/// Generate a postcard with the given information.
+///
+/// - lastName (string): The last name of the recipient, e.g., "岸田". 
+/// - firstName (string): The first name of the recipient, e.g., "文雄".
+/// - postCode (string): The post code of the recipient, e.g., "1008981".
+/// - address (string): The address of the recipient, e.g., "東京都千代田区永田町2-2-1 衆議院第1議員会館1222号室". Arabic numerals are automatically converted to kanji numerals.
+/// - myLastName (string): The last name of the sender, e.g., "岸田".
+/// - myFirstName (string): The first name of the sender, e.g., "文雄".
+/// - myPostCode (string): The post code of the sender, e.g., "1008981".
+/// - myAddress (string): The address of the sender, e.g., "東京都千代田区永田町2-2-1 衆議院第1議員会館1222号室". Arabic numerals are automatically converted to kanji numerals.
+/// - debug (boolean): Whether to show the debug information, e.g., true.
+/// -> none
 #let hagaki(lastName, firstName, postCode, address, myLastName, myFirstName, myPostCode, myAddress, debug: false) = {
-  set page(width: 100mm, height: 148mm, margin: 0mm)
-  if debug == true {
-    set page(background: image("hagaki.png"))
+  let background = none
+  if debug {
+    background = image("hagaki.png")
   }
-
+  set page(width: 100mm, height: 148mm, margin: 0mm, background: background)
   // postCode
 
   set text(size: 16pt)
@@ -142,6 +154,16 @@
   pagebreak(weak: true)
 }
 
+/// Generate a batch of postcards from the given CSV file.
+///
+/// - path (string): The path to the CSV file, e.g., "jyusyoroku.csv".
+/// - lastNameColumn (integer): The column number for the last name, e.g., 0.
+/// - firstNameColumn (integer): The column number for the first name, e.g., 1.
+/// - postCodeColumn (integer): The column number for the post code, e.g., 2.
+/// - addressColumn (integer): The column number for the address, e.g., 3.
+/// - myLine (number): The line number for the sender, e.g., 1.
+/// - debug (boolean): Whether to show the debug information, e.g., true.
+/// -> none
 #let hagakiBatch(
   path,
   lastNameColumn,
@@ -165,7 +187,7 @@
       lines.at(myLine).at(firstNameColumn),
       lines.at(myLine).at(postCodeColumn),
       lines.at(myLine).at(addressColumn),
-      debug: false,
+      debug: debug,
     )
   }
 }
