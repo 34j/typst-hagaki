@@ -39,13 +39,19 @@
   )
 }
 
+#let formatAddress(address) = {
+  address.replace("-", "ー").replace("1", "一").replace("2", "二").replace("3", "三").replace("4", "四").replace("5", "五").replace("6", "六").replace("7", "七").replace("8", "八").replace("9", "九").replace("0", "〇")
+}
+
 #let hagaki(lastName, firstName, postCode, address, myLastName, myFirstName, myPostCode, myAddress, debug: false) = {
   set page(width: 100mm, height: 148mm, margin: 0mm)
   if debug == true {
     set page(background: image("hagaki.png"))
   }
-  set text(size: 16pt)
 
+  // postCode
+
+  set text(size: 16pt)
   for (i, c) in postCode.clusters(
   ).filter(x => regex("[0-9]") in x).enumerate() {
     place(
@@ -59,6 +65,8 @@
       dy: 12mm,
     )
   }
+
+  // myPostCode
 
   set text(size: 10pt)
   for (i, c) in myPostCode.clusters(
@@ -75,6 +83,8 @@
     )
   }
 
+  // name
+
   set text(size: 30pt)
   place(
     center + bottom,
@@ -84,30 +94,38 @@
     dy: -33mm,
   )
 
+  // address
+
   set text(size: 13pt)
   place(
     top + right,
     block(
-      vw(address.replace("-", "ー")),
+      vw(formatAddress(address)),
       width: 35mm,
       height: 90mm,
     ),
     dy: 30mm,
-    dx: -5mm,
+    dx: -10mm,
   )
+
+  // myAddress
+
   place(
     left + top,
     block(
       align(center + horizon)[
         #set text(size: 10pt)
-        #vw(myAddress.replace("-", "ー"))
+        #vw(formatAddress(myAddress))
       ],
-      width: 20mm,
+      width: 15mm,
       height: 60mm,
     ),
     dx: 15mm,
     dy: 60mm,
   )
+
+  // myName
+
   place(
     left + top,
     block(
